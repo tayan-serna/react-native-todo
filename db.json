@@ -1,0 +1,20 @@
+{
+  "todos": [
+    {
+      "id": 1,
+      "todo": "make db work"
+    },
+    {
+      "todo": "othertodo",
+      "id": 2
+    },
+    {
+      "todo": "o",
+      "id": 3
+    },
+    {
+      "todo": "some",
+      "id": 4
+    }
+  ]
+}
