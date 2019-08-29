@@ -7,31 +7,43 @@ import {
   TextInput,
   TouchableOpacity,
 } from 'react-native';
+import {connect} from 'react-redux';
+import {bindActionCreators} from 'redux';
 
-const Todo = () => {
+import {
+  getTodos,
+  getTodosSuccess,
+  getTodosFailure,
+  postTodos,
+  postTodosSuccess,
+  postTodosFailure,
+} from '../actions/todo';
+
+const Todo = props => {
   const [newTodo, setNewTodo] = useState('');
-  const [todos, setTodos] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios('https://4c163175.ngrok.io/todos')
+    props.getTodos();
+    axios('https://4897c71f.ngrok.io/todos')
       .then(res => {
         setLoading(false);
-        setTodos(res.data);
+        props.getTodosSuccess(res.data);
       })
-      .catch(console.error);
+      .catch(() => props.getTodosFailure());
   }, []);
 
   function handleAddTodo(todo) {
+    props.postTodos();
     axios
-      .post('https://4c163175.ngrok.io/todos', {
+      .post('https://4897c71f.ngrok.io/todos', {
         todo: newTodo,
       })
       .then(res => {
-        setTodos([...todos, res.data]);
+        props.postTodosSuccess(res.data);
         setNewTodo('');
       })
-      .catch(console.error);
+      .catch(() => props.postTodosFailure());
   }
 
   if (loading) {
@@ -46,7 +58,7 @@ const Todo = () => {
     <View style={styles.container}>
       <View style={styles.header}>
         <TextInput
-          onChangeText={newTodo => setNewTodo(newTodo)}
+          onChangeText={todo => setNewTodo(todo)}
           value={newTodo}
           style={styles.input}
         />
@@ -55,7 +67,7 @@ const Todo = () => {
         </TouchableOpacity>
       </View>
       <View style={styles.todos}>
-        {todos.map((todo, idx) => (
+        {props.todos.todos.map((todo, idx) => (
           <Text key={idx} style={styles.todo}>
             {todo.todo}
           </Text>
@@ -98,4 +110,24 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Todo;
+const mapStateToProps = ({todos}) => ({
+  todos,
+});
+
+const mapActionToProps = dispatch =>
+  bindActionCreators(
+    {
+      getTodos,
+      getTodosSuccess,
+      getTodosFailure,
+      postTodos,
+      postTodosSuccess,
+      postTodosFailure,
+    },
+    dispatch,
+  );
+
+export default connect(
+  mapStateToProps,
+  mapActionToProps,
+)(Todo);
